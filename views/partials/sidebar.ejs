@@ -1,0 +1,23 @@
+<ul class="navbar-nav text-light" id="accordionSidebar">
+    <% if(currentUser.post=="Legal Team Member"){ %>
+        <li class="nav-item">
+            <a class="nav-link" href="/member/queries"><i class="fas fa-table"></i><span>All Queries</span></a>
+            <a class="nav-link" href="/member/queries"><i class="fas fa-table"></i><span>Unresolved Queries</span></a>
+            <a class="nav-link" href="/member/queries"><i class="fas fa-table"></i><span>Resolved Queries</span></a>
+            <a class="nav-link" href="/profile"><i class="fas fa-user"></i><span>Profile</span></a>
+        </li>
+        <li class="nav-item"></li>
+        <li class="nav-item"><a class="nav-link" href="/logout"><i class="far fa-user-circle"></i><span>Logout</span></a></li>
+    <% } else if(currentUser.post=="Employee"){ %>
+        <li class="nav-item"><a class="nav-link" href="/<%= currentUser.username %>/queries"><i class="fas fa-table"></i><span>Queries</span></a><a class="nav-link" href="/profile"><i class="fas fa-user"></i><span>Profile</span></a></li>
+        <li class="nav-item"></li>
+        <li class="nav-item"><a class="nav-link" href="/logout"><i class="far fa-user-circle"></i><span>Logout</span></a></li>
+    <% } else if(currentUser.post=="Admin"){ %>
+        <li class="nav-item">
+            <a class="nav-link" href="/dashboard"><i class="fas fa-table"></i><span>Dashboard</span></a>
+            <a class="nav-link" href="/profile"><i class="fas fa-user"></i><span>Profile</span></a>
+        </li>
+        <li class="nav-item"></li>
+        <li class="nav-item"><a class="nav-link" href="/logout"><i class="far fa-user-circle"></i><span>Logout</span></a></li>
+    <% } %>
+</ul>
