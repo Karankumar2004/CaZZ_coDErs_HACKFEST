@@ -69,3 +69,170 @@ passport.serializeUser(User.serializeUser()); //storing user data
 passport.deserializeUser(User.deserializeUser()); //unStoring user data
 
 passport.use(new LocalStrategy(User.authenticate())); //using the local password strategy to authentical User (our model)
+
+app.use((req, res, next)=>{
+    res.locals.currentUser= req.user;  //this will deserialize the information stored in session
+    next();
+});
+
+app.get('/', (req, res)=>{
+    res.redirect('/login');
+})
+
+app.get('/login', (req, res) => {
+    res.render('templates/login.ejs');
+});
+
+app.get('/profile', isLoggedIn, (req, res)=>{
+    const user= req.user;
+    res.render('templates/profile.ejs', {user});
+})
+
+app.post('/login', passport.authenticate('local', {failureRedirect: '/login'}), (req, res)=>{
+    res.redirect('/profile');
+});
+
+app.get('/logout', isLoggedIn, (req, res)=>{
+    req.logout(function (err) {
+        if (err) {
+            return next(err);
+        }
+        res.redirect('/login');
+    });
+})
+
+app.get('/dashboard', isLoggedIn, isAdmin, async(req, res)=>{
+    const user= req.user;
+    const queries= await Query.find({});
+    const r= await Query.find({status:'Resolved'});
+    const resolved= r.length;
+    res.render('templates/dashboard.ejs', {user, queries, resolved});
+})
+
+app.get('/member/queries',isLoggedIn, isLegal, async(req, res)=>{
+    const user= req.user;
+    const queries= await Query.find({assignedto: user._id});
+    res.render('templates/allquery.ejs', {queries, user});
+})
+
+app.get('/:username/queries', isLoggedIn, async(req, res)=>{
+    const {username}= req.params;
+    const user= req.user;
+    const u= await User.find({username});
+    const queries= await Query.find({author: u[0].username});
+    res.render('templates/allquery.ejs', {queries, user});
+})
+
+app.get('/query/:id',isLoggedIn, async(req, res)=>{
+    const user= req.user;
+    const id= req.params.id;
+    const q= await Query.findById(id);
+    const author= q.author;
+    const auth= await User.find({username: author})
+    const users= await User.find({post: 'Legal Team Member'})
+
+    res.render('templates/admin_viewquery.ejs', {user, q, users, auth});
+})
+
+app.post('/assign/:uid/:qid', isLoggedIn, isAdmin, async(req, res)=>{
+    const assignId= req.params.uid;
+    const queryId= req.params.qid;
+
+    const q= await Query.findById(queryId);
+    q.assignedto= assignId;
+    q.status= 'Assigned';
+    q.save();
+    res.redirect('/dashboard');
+})
+
+app.get('/raiseticket', isLoggedIn, (req, res)=>{
+    const user= req.user;
+    res.render('templates/raiseticket.ejs', {user})
+})
+
+app.post('/raiseticket', isLoggedIn, async(req, res)=>{
+    var today = new Date();
+
+    var monthNames = [
+      'January', 'February', 'March', 'April', 'May', 'June', 'July',
+      'August', 'September', 'October', 'November', 'December'
+    ];
+    var day = today.getDate();
+    var monthIndex = today.getMonth();
+    var year = today.getFullYear();
+    var formattedDate = day + '-' + monthNames[monthIndex] + '-' + year;
+
+    const user= req.user;
+    const q= req.body;
+    q.date= formattedDate;
+    q.author= user.username;
+    q.status= "Pending";
+
+    const query= new Query(q);
+    await query.save();
+
+    user.queries.push(query);
+    await user.save();
+
+    res.redirect(`/${user.username}/queries`);
+})
+
+app.get('/viewresolution/:id', isLoggedIn, async(req, res)=>{
+    const user= req.user;
+    const {id}= req.params;
+
+    const q= await Query.findById(id);
+    const author= q.author;
+    const rb= q.assignedto;
+
+    const resolvedby= await User.findById(rb);
+
+    const auth= await User.find({username: author})
+
+    res.render('templates/viewquery.ejs', {user, q, auth, resolvedby});
+})
+
+app.get('/resolve/:qid', isLoggedIn, async(req, res)=>{
+    const user= req.user;
+    const queryId= req.params.qid;
+
+    const q= await Query.findById(queryId);
+    const a= q.author;
+    const author= await User.find({username: a});
+    res.render('templates/resolutionform.ejs', {user, q, author})
+})
+
+app.post('/resolve/:id', isLoggedIn, async(req, res)=>{
+    const {id}= req.params;
+
+    const q= await Query.findById(id);
+    q.resolution= req.body.body;
+    q.status= 'Resolved';
+    q.save();
+    res.redirect('/member/queries');
+})
+
+app.get('/register', (req, res)=>{
+    res.render('templates/register.ejs');
+})
+
+app.post('/register', upload.array('image'), async(req, res)=>{
+    try{
+        const {fullname, username, email, phone, post, address, city, country, password}= req.body;
+        const u = new User({fullname, username, email, phone, post, address, city, country});
+        u.image =req.files.map(f=>({url:f.path, filename: f.filename}));
+        const newUser= await User.register(u, password);
+        req.login(newUser, (err)=>
+        {
+            if(err) return next(err);
+            res.redirect('/profile');
+        });
+    }catch(error){
+        console.log('ERROR', error)
+        res.redirect('/register');
+    }
+})
+
+app.listen(8000, () => {
+    console.log('Server started successfully on port 8000');
+});
