@@ -233,6 +233,6 @@ app.post('/register', upload.array('image'), async(req, res)=>{
     }
 })
 
-app.listen(8000, () => {
-    console.log('Server started successfully on port 8000');
+app.listen(8080, () => {
+    console.log('Server started successfully on port 8080');
 });
