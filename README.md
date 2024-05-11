@@ -24,7 +24,7 @@ To run this application, you need to have Node.js installed on your machine. If 
 1. Clone this repository to your local machine
 2. Navigate to the project directory
 3. Start the server: node index.js
-4. Visit http://localhost:8000 in your web browser to access the application
+4. Visit http://localhost:3000 in your web browser to access the application
 
 ## Admin Features
 To use the features of Admin:
