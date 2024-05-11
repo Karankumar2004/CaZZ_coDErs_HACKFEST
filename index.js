@@ -232,7 +232,6 @@ app.post('/register', upload.array('image'), async(req, res)=>{
         res.redirect('/register');
     }
 })
-
-app.listen(8080, () => {
-    console.log('Server started successfully on port 8080');
+app.listen(8090, () => {
+    console.log('Server started successfully on port 8090');
 });
