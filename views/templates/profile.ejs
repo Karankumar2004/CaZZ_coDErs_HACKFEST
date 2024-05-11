@@ -185,6 +185,18 @@
                                                         </div>
                                                     </div>
                                                 </div>
+                                                <div class="row">
+                                                    <div class="col">
+                                                        <div class="mb-3"><label class="form-label" for="last_name"><strong>Organization</strong></label>
+                                                            <div> <%= user.organizationName %> </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col">
+                                                        <div class="mb-3"><label class="form-label" for="last_name"><strong>Referral Code</strong></label>
+                                                            <div id="copyText" style="cursor: pointer;"> <b><%= user.referralCode %></b> <img src="https://cdn.iconscout.com/icon/free/png-256/free-copy-197-1172885.png" width="4%" alt=""> </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </form>
                                         </div>
                                     </div>
@@ -225,6 +237,19 @@
             </footer>
         </div><a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a>
     </div>
+    <script>
+        document.getElementById("copyText").addEventListener("click", function() {
+          var textToCopy = document.getElementById("copyText").innerText;
+          navigator.clipboard.writeText(textToCopy)
+            .then(function() {
+              // Provide feedback to the user
+
+            })
+            .catch(function(err) {
+              console.error('Could not copy text: ', err);
+            });
+        });
+        </script>
     <script src="assets/bootstrap/js/bootstrap.min.js"></script>
     <script src="assets/js/bs-init.js"></script>
     <script src="assets/js/theme.js"></script>
