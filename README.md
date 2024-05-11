@@ -13,6 +13,10 @@
 **Client:** Bootstrap Studio, EJs
 
 **Server:** Node, Express, MongoDB
+<br>
+## Workflow
+![Workflow](https://github.com/Karankumar2004/CaZZ_coDErs_HACKFEST/assets/121598965/1e8da3c8-a12e-4a4e-812f-4430e69343b3)
+<br>
 
 ## Approach
 
@@ -42,7 +46,3 @@ To establish a solid foundation for our site, we are meticulously crafting the l
 Central to our data management strategy is the utilization of MongoDB Atlas Database, a cloud-based platform. By harnessing MongoDB Atlas, we ensure not only the smooth collaboration among team members but also the security and integrity of our workflow, safeguarding sensitive data and facilitating efficient data access and management.
 
 Through this meticulously planned approach, we are poised to deliver a high-quality solution that not only meets but exceeds the expectations of our stakeholders, setting a benchmark for excellence in both functionality and user experience.
-
-## Workflow
-![Workflow](https://github.com/Karankumar2004/CaZZ_coDErs_HACKFEST/assets/121598965/1e8da3c8-a12e-4a4e-812f-4430e69343b3)
-
