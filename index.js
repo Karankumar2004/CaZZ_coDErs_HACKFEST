@@ -14,9 +14,8 @@ const passport= require('passport');
 const LocalStrategy= require('passport-local');
 const ejsMate = require('ejs-mate');
 const User= require('./models/userschema.js');
-const Query= require('./models/queryschema.js')
-//const dbUrl= 'mongodb://localhost:27017/helpdesk';
-// const dbUrl= 'mongodb://localhost:27017/helpdesk';
+const Query= require('./models/queryschema.js');
+const Rating = require('./models/ratingSchema.js');
 const dbUrl= process.env.DB_URL;
 const MongoDBStore= require("connect-mongo");
 const secret='thisshouldbeabettersecret';
@@ -101,10 +100,12 @@ app.get('/logout', isLoggedIn, (req, res)=>{
     });
 })
 
-app.get('/dashboard', isLoggedIn, isAdmin, async(req, res)=>{
+app.get('/dashboard/:id', isLoggedIn, isAdmin, async(req, res)=>{
+    const {id}= req.params;
+    const ad= await User.findById(id);
     const user= req.user;
-    const queries= await Query.find({});
-    const r= await Query.find({status:'Resolved'});
+    const queries= await Query.find({org: ad.organizationName});
+    const r= await Query.find({status:'Resolved', org: ad.organizationName});
     const resolved= r.length;
     res.render('templates/dashboard.ejs', {user, queries, resolved});
 })
@@ -123,59 +124,27 @@ app.get('/:username/queries', isLoggedIn, async(req, res)=>{
     res.render('templates/allquery.ejs', {queries, user});
 })
 
-app.get('/query/:id',isLoggedIn, async(req, res)=>{
-    const user= req.user;
-    const id= req.params.id;
-    const q= await Query.findById(id);
-    const author= q.author;
-    const auth= await User.find({username: author})
-    const users= await User.find({post: 'Legal Team Member'})
+// app.get('/query/:id',isLoggedIn, async(req, res)=>{
+//     const user= req.user;
+//     const id= req.params.id;
+//     const q= await Query.findById(id);
+//     const author= q.author;
+//     const auth= await User.find({username: author})
+//     const users= await User.find({post: 'Legal Team Member'})
 
-    res.render('templates/admin_viewquery.ejs', {user, q, users, auth});
-})
+//     res.render('templates/admin_viewquery.ejs', {user, q, users, auth});
+// })
 
-app.post('/assign/:uid/:qid', isLoggedIn, isAdmin, async(req, res)=>{
-    const assignId= req.params.uid;
-    const queryId= req.params.qid;
+// app.post('/assign/:uid/:qid', isLoggedIn, isAdmin, async(req, res)=>{
+//     const assignId= req.params.uid;
+//     const queryId= req.params.qid;
 
-    const q= await Query.findById(queryId);
-    q.assignedto= assignId;
-    q.status= 'Assigned';
-    q.save();
-    res.redirect('/dashboard');
-})
-
-app.get('/raiseticket', isLoggedIn, (req, res)=>{
-    const user= req.user;
-    res.render('templates/raiseticket.ejs', {user})
-})
-
-app.post('/raiseticket', isLoggedIn, async(req, res)=>{
-    var today = new Date();
-
-    var monthNames = [
-      'January', 'February', 'March', 'April', 'May', 'June', 'July',
-      'August', 'September', 'October', 'November', 'December'
-    ];
-    var day = today.getDate();
-    var monthIndex = today.getMonth();
-    var year = today.getFullYear();
-    var formattedDate = day + '-' + monthNames[monthIndex] + '-' + year;
-
-    const user= req.user;
-    const q= req.body;
-    q.date= formattedDate;
-    q.author= user.username;
-    q.status= "Pending";
-
-    const query= new Query(q);
-    await query.save();
-
-    user.queries.push(query);
-    await user.save();
-
-    res.redirect(`/${user.username}/queries`);
-})
+//     const q= await Query.findById(queryId);
+//     q.assignedto= assignId;
+//     q.status= 'Assigned';
+//     q.save();
+//     res.redirect('/dashboard');
+// })
 
 app.get('/viewresolution/:id', isLoggedIn, async(req, res)=>{
     const user= req.user;
@@ -188,9 +157,114 @@ app.get('/viewresolution/:id', isLoggedIn, async(req, res)=>{
     const resolvedby= await User.findById(rb);
 
     const auth= await User.find({username: author})
+    // console.log(resolvedby.rating.average)
 
     res.render('templates/viewquery.ejs', {user, q, auth, resolvedby});
 })
+
+app.get('/autoassign/:queryId', isLoggedIn, isAdmin, async (req, res) => {
+    const { queryId } = req.params;
+    const q= await Query.findById(queryId);
+    if(!q) return res.status(404).send('Query not found.');
+    const u= await User.findOne({username: q.author});
+    // return res.send(u)
+    // u --> contains the author of query
+
+    const org= u.organizationName;
+    const legalMembers = await User.find({ post: 'Legal Team Member', organizationName: org}).sort({ 'rating.average': -1, 'rating.count': -1 });
+
+    // return res.send(legalMembers)
+
+
+    // const query = await Query.findById(queryId);
+    // if (!query) {
+    //     return res.status(404).send('Query not found.');
+    // }
+
+    let assigned = false;
+    for (let member of legalMembers) {
+        if(member.isAvailable) {
+            q.assignedto = member._id;
+            q.status = 'Assigned';
+            await q.save();
+            assigned = true;
+            break;
+        }
+    }
+
+    if (!assigned) {
+        res.status(404).send('No available legal team members found.');
+    } else {
+        res.redirect('/dashboard');
+    }
+});
+
+app.post('/submitrating/:queryId', isLoggedIn, async (req, res) => {
+    const { rating } = req.body;
+    const { queryId } = req.params;
+
+    const query = await Query.findById(queryId).populate('assignedto');
+    if (!query) {
+        return res.status(404).send('Query not found');
+    }
+
+    const newRating = new Rating({
+        rating,
+        forUser: query.assignedto,
+        byUser: req.user._id
+    });
+    await newRating.save();
+
+    // Update legal member rating
+    const user = await User.findById(query.assignedto);
+    if (user) {
+        user.rating.count += 1;
+        user.rating.average = ((user.rating.average * (user.rating.count - 1)) + parseInt(rating)) / user.rating.count;
+        await user.save();
+    }
+
+    query.rat=rating;
+    query.rated=true;
+    await query.save();
+
+    res.redirect(`/viewresolution/${query._id}`);
+});
+
+app.get('/raiseticket', isLoggedIn, (req, res) => {
+    res.render('templates/raiseticket.ejs', { user: req.user });
+});
+
+app.post('/raiseticket', isLoggedIn, async (req, res) => {
+    const today = new Date();
+    const formattedDate = `${today.getDate()}-${today.toLocaleString('default', { month: 'long' })}-${today.getFullYear()}`;
+
+    const newQueryData = {
+        date: formattedDate,
+        author: req.user.username,
+        status: "Pending",
+        ...req.body
+    };
+
+    const newQuery = new Query(newQueryData);
+    newQuery.org= req.user.organizationName;
+    await newQuery.save();
+
+    const legalMembers = await User.find({ post: 'Legal Team Member' })
+                                   .sort({ 'rating.average': -1, 'rating.count': -1 });
+    const availableMember = legalMembers.find(member => member.isAvailable);
+
+    if (availableMember) {
+        newQuery.assignedto = availableMember._id;
+        newQuery.status = 'Assigned';
+        await newQuery.save();
+        req.user.queries.push(newQuery);
+        await req.user.save();
+        res.redirect(`/${req.user.username}/queries`);
+    } else {
+        console.log('No available legal team members found. Query is pending assignment.');
+        res.redirect(`/${req.user.username}/queries`);
+    }
+});
 
 app.get('/resolve/:qid', isLoggedIn, async(req, res)=>{
     const user= req.user;
@@ -216,23 +290,54 @@ app.get('/register', (req, res)=>{
     res.render('templates/register.ejs');
 })
 
-app.post('/register', upload.array('image'), async(req, res)=>{
-    try{
-        const {fullname, username, email, phone, post, address, city, country, password}= req.body;
-        const u = new User({fullname, username, email, phone, post, address, city, country});
-        u.image =req.files.map(f=>({url:f.path, filename: f.filename}));
-        const newUser= await User.register(u, password);
-        req.login(newUser, (err)=>
-        {
-            if(err) return next(err);
+app.post('/register', upload.array('image'), async(req, res) => {
+    try {
+        var { fullname, username, email, phone, post, address, city, country, password, organizationType, organizationName, referralCode } = req.body;
+        let newReferralCode = '';
+
+        if(post!=='Admin')organizationType= 'Join Existing';
+
+        if (organizationType === 'Create New') {
+            // Generate a new referral code based on the current timestamp
+            newReferralCode = Date.now().toString();
+        } else if (organizationType === 'Join Existing') {
+
+            // Check if the referral code exists
+            const existingOrg = await User.findOne({ referralCode });
+            // return res.send(existingOrg)
+
+            if(existingOrg) organizationName= existingOrg.organizationName;
+
+            // return res.send(existingOrg);
+
+            if (!existingOrg) {
+                throw new Error('Invalid referral code');
+            }
+        }
+
+        // Create a new user instance with the received data including organization details
+        const newUser = new User({
+            fullname, username, email, phone, post, address, city, country,
+            organizationType, organizationName,
+            referralCode: organizationType === 'Create New' ? newReferralCode : referralCode
+        });
+
+        // Map uploaded images to user's image field
+        newUser.image = req.files.map(f => ({ url: f.path, filename: f.filename }));
+
+        // Register and log in the new user
+        await User.register(newUser, password);
+        req.login(newUser, (err) => {
+            if (err) return next(err);
             res.redirect('/profile');
         });
-    }catch(error){
-        console.log('ERROR', error)
+    } catch (error) {
+        console.log('ERROR', error);
         res.redirect('/register');
     }
-})
+});
 
-app.listen(5000, () => {
+
+app.listen(8000, () => {
     console.log('Server started successfully on port 8000');
 });
