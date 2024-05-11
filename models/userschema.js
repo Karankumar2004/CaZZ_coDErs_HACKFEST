@@ -1,19 +1,18 @@
-const mongoose= require('mongoose');
-const Schema= mongoose.Schema;
-const passportLocalMongoose= require('passport-local-mongoose');
-const Query= require('./queryschema.js');
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
+const passportLocalMongoose = require('passport-local-mongoose');
+const Query = require('./queryschema.js');
 
-const ImageSchema= new Schema({
+const ImageSchema = new Schema({
     url: String,
     filename: String,
 });
 
-ImageSchema.virtual('thumbnail').get(function (){
+ImageSchema.virtual('thumbnail').get(function () {
     return this.url.replace('/upload', '/upload/w_270,h_270');
 });
-const opts= {toJSON: {virtuals: true}};
 
-const userschema= new Schema({
+const UserSchema = new Schema({
     fullname: String,
     username: String,
     email: String,
@@ -28,9 +27,11 @@ const userschema= new Schema({
             ref: 'Query'
         }
     ],
-    image: [ImageSchema]
-}, opts);
+    image: [ImageSchema],
+    resetPasswordToken: String,
+    resetPasswordExpires: Date
+});
 
-userschema.plugin(passportLocalMongoose);
+UserSchema.plugin(passportLocalMongoose);
 
-module.exports=mongoose.model('User',userschema);
+module.exports = mongoose.model('User', UserSchema);
