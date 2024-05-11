@@ -1,0 +1,20 @@
+{
+  "name": "cazz_coders_hackfest",
+  "version": "1.0.0",
+  "description": "version 1",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Karankumar2004/CaZZ_coDErs_HACKFEST.git"
+  },
+  "author": "CaZZ_coDErs",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Karankumar2004/CaZZ_coDErs_HACKFEST/issues"
+  },
+  "homepage": "https://github.com/Karankumar2004/CaZZ_coDErs_HACKFEST#readme",
+  "keywords": []
+}
