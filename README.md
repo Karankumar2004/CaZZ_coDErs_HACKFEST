@@ -10,9 +10,13 @@
 
 ## Tech Stack
 
-**Client:** Bootstrap Studio, EJs
+*Client:* Bootstrap Studio, EJs
 
-**Server:** Node, Express, MongoDB
+*Server:* Node, Express, MongoDB
+<br>
+## Workflow
+![Workflow](https://github.com/Karankumar2004/CaZZ_coDErs_HACKFEST/assets/121598965/1e8da3c8-a12e-4a4e-812f-4430e69343b3)
+<br>
 
 ## Approach
 
@@ -20,10 +24,10 @@
 
 Our problem solution revolves around establishing three distinct access levels among our users:
 
-- _Admin_: These are the key decision-makers, such as corporate executives, ministerial boards overseeing query management processes, and hospital management personnel responsible for delegating queries.
-- _Query Seeker_: This user category encompasses employees in corporate settings, ordinary citizens, or patients within healthcare systems. They initiate queries seeking resolution or clarification.
+- Admin: These are the key decision-makers, such as corporate executives, ministerial boards overseeing query management processes, and hospital management personnel responsible for delegating queries.
+- Query Seeker: This user category encompasses employees in corporate settings, ordinary citizens, or patients within healthcare systems. They initiate queries seeking resolution or clarification.
 
-- _Query Solver_: This group consists of legal teams, management personnel in corporate settings, specific committees within governmental systems, or medical professionals like doctors and nurses. They are tasked with resolving queries effectively and efficiently.
+- Query Solver: This group consists of legal teams, management personnel in corporate settings, specific committees within governmental systems, or medical professionals like doctors and nurses. They are tasked with resolving queries effectively and efficiently.
 
 ### 2. User-Centric Frontend Development
 
@@ -41,7 +45,4 @@ To establish a solid foundation for our site, we are meticulously crafting the l
 
 Central to our data management strategy is the utilization of MongoDB Atlas Database, a cloud-based platform. By harnessing MongoDB Atlas, we ensure not only the smooth collaboration among team members but also the security and integrity of our workflow, safeguarding sensitive data and facilitating efficient data access and management.
 
-Through this meticulously planned approach, we are poised to deliver a high-quality solution that not only meets but exceeds the expectations of our stakeholders, setting a benchmark for excellence in both functionality and user experience.
-
-
-
+Through this meticulously planned approach, we are poised to deliver a high-quality solution that not only meets but exceeds the expectations of our stakeholders, setting a benchmark for excellence in both functionality and user experience.
