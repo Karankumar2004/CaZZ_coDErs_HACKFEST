@@ -32,4 +32,4 @@ To use the features of Admin:
 - *Password:* admin
 
 ## Overview Video
-[<img src="https://i.postimg.cc/PqyXYJgr/Screenshot-2024-04-14-162136.png" width="400"/>](https://www.youtube.com/watch?v=EQsl9pOUPcs)
+[<img src="https://i.postimg.cc/PqyXYJgr/Screenshot-2024-04-14-162136.png" width="400"/>]
