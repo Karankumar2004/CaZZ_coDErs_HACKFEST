@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>HelpDesk - Register</title>
+    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i&amp;display=swap">
+    <link rel="stylesheet" href="assets/fonts/fontawesome-all.min.css">
+</head>
+
+<body class="bg-gradient-primary">
+    <div class="container">
+        <div class="card shadow-lg o-hidden border-0 my-5">
+            <div class="card-body p-0">
+                <div class="row">
+                    <div class="col-lg-5 d-none d-lg-flex">
+                        <div class="flex-grow-1 bg-register-image" style="background-image: url('images/pic.png');"></div>
+                    </div>
+                    <div class="col-lg-7">
+                        <div class="p-5">
+                            <div class="text-center">
+                                <h4 class="text-dark mb-4">Create an Account!</h4>
+                            </div>
+                            <form class="user" action="/register" enctype="multipart/form-data" method="post">
+                                <div class="mb-3"><input class="form-control form-control-user" type="text" id="fullname" placeholder="Full Name" name="fullname" required></div>
+                                <div class="mb-3"><input class="form-control form-control-user" type="text" id="username" placeholder="Username" name="username" required></div>
+                                <div class="mb-3"><input class="form-control form-control-user" type="email" id="email" placeholder="Email Address" name="email" required></div>
+                                <div class="mb-3"><input class="form-control form-control-user" type="number" id="phone" placeholder="Phone Number" name="phone" required></div>
+                                <div class="mb-3"><input class="form-control form-control-user" type="text" id="address" placeholder="Address" name="address" required></div>
+                                <div class="row mb-3">
+                                    <div class="col-sm-6 mb-3 mb-sm-0"><input class="form-control form-control-user" type="text" id="city" placeholder="City" name="city" required></div>
+                                    <div class="col-sm-6"><input class="form-control form-control-user" type="text" id="country" placeholder="Country" name="country" required></div>
+                                </div>
+                                <div class="mb-3"><input class="form-control form-control-user" type="password" id="password" placeholder="Password" name="password" required></div>
+                                <div class="input-group mb-3">
+                                    <label class="input-group-text" for="inputGroupFile01">Upload your image</label>
+                                    <input type="file" class="form-control" name="image" id="inputGroupFile01" required>
+                                </div>
+                                <br>
+                                <div class="mb-3">
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="post" id="radioAdmin" value="Admin" onchange="showRoleSpecificFields()">
+                                        <label class="form-check-label" for="radioAdmin">Admin</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="post" id="radioLegal" value="Legal Team Member" onchange="showRoleSpecificFields()">
+                                        <label class="form-check-label" for="radioLegal">Legal Team Member</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="post" id="radioEmployee" value="Employee" onchange="showRoleSpecificFields()">
+                                        <label class="form-check-label" for="radioEmployee">Employee</label>
+                                    </div>
+                                </div>
+                                <div id="legalMemberFields" class="mb-3" style="display:none;">
+                                    <div class="mb-3">
+                                        <br>
+                                        <h7></t>Availability Start Time</h7>
+                                        <input class="form-control form-control-user" type="time" id="availabilityStartTime" placeholder="Availability Start Time" name="availabilityStartTime"></div>
+                                    <div class="mb-3">
+                                        <br>
+                                        <h7></t>Availability End Time</h7>
+                                        <input class="form-control form-control-user" type="time" id="availabilityEndTime" placeholder="Availability End Time" name="availabilityEndTime"></div>
+                                        <br>
+                                    </div>
+                                <div id="adminTypeDiv" class="mb-3" style="display:none;">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="organizationType" id="createNew" value="Create New" onchange="showOrgFields()">
+                                        <label class="form-check-label" for="createNew">Create New Organization</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="organizationType" id="joinExisting" value="Join Existing" onchange="showOrgFields()">
+                                        <label class="form-check-label" for="joinExisting">Join Existing Organization</label>
+                                    </div>
+                                </div>
+                                <div class="mb-3" id="newOrgName" style="display:none;">
+                                    <input class="form-control form-control-user" type="text" id="organizationName" placeholder="Organization Name" name="organizationName">
+                                </div>
+                                <div class="mb-3" id="existingReferral" style="display:none;">
+                                    <input class="form-control form-control-user" type="text" id="referralCode" placeholder="Referral Code" name="referralCode">
+                                </div>
+                                <button class="btn btn-primary d-block btn-user w-100" type="submit">Register Account</button>
+                            </form>
+                            <div class="text-center"><a class="small" href="/login">Forgot Password?</a></div>
+                            <div class="text-center"><a the="small" href="/login">Already have an account? Login!</a></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        function showRoleSpecificFields() {
+            var isAdmin = document.getElementById('radioAdmin').checked;
+            var isLegal = document.getElementById('radioLegal').checked;
+            var adminTypeDiv = document.getElementById('adminTypeDiv');
+            var legalMemberFields = document.getElementById('legalMemberFields');
+
+            adminTypeDiv.style.display = isAdmin ? 'block' : 'none';
+            legalMemberFields.style.display = isLegal ? 'block' : 'none';
+
+    
+            var joinExisting = document.getElementById('joinExisting').checked;
+            document.getElementById('existingReferral').style.display = isAdmin ? joinExisting ? 'block' : 'none' : 'block';
+            var createNew = document.getElementById('createNew').checked;
+            document.getElementById('newOrgName').style.display = isAdmin ? createNew ? 'block' : 'none' : 'none';
+        }
+
+        function showOrgFields() {
+            var createNew = document.getElementById('createNew').checked;
+            var joinExisting = document.getElementById('joinExisting').checked;
+            document.getElementById('newOrgName').style.display = createNew ? 'block' : 'none';
+            document.getElementById('existingReferral').style.display = joinExisting ? 'block' : 'none';
+        }
+    </script>
+    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+    <script src="assets/js/bs-init.js"></script>
+    <script src="assets/js/theme.js"></script>
+</body>
+
+</html>
